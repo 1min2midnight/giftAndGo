@@ -1,9 +1,12 @@
 package org.example.app;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.model.Outcome;
 import org.example.services.FileParserService;
 import org.example.model.Entry;
+import org.example.services.IpValidationService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +21,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/entries")
 public class FileProcessorController {
     private final FileParserService fileParserService;
+    private final IpValidationService ipValidationService;
 
-    public FileProcessorController(FileParserService fileParserService) {
+    public FileProcessorController(FileParserService fileParserService,  IpValidationService ipValidationService) {
         this.fileParserService = fileParserService;
+        this.ipValidationService = ipValidationService;
     }
 
     @PostMapping(
@@ -28,9 +33,17 @@ public class FileProcessorController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<List<Outcome>> processFile(@RequestBody MultipartFile file) throws IOException {
+    public ResponseEntity<?> processFile(HttpServletRequest httpServletRequest, @RequestBody MultipartFile file) throws IOException {
+        String ipAddress = ipValidationService.extractClientIp(httpServletRequest);
+        try {
+            ipValidationService.validateIp(ipAddress);
+        } catch(SecurityException securityException) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body("{\"error\": \"" + securityException.getMessage() + "\"}");
+        }
         String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-
         List<Entry> entries = fileParserService.parse(content);
             List<Outcome> outcomes = entries
                     .stream()
