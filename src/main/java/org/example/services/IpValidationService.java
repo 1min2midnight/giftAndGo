@@ -16,6 +16,7 @@ public class IpValidationService {
 
     private static final List<String> BLOCKED_COUNTRIES = List.of("China","Spain","United States");
     private static final List<String> BLOCKED_ISPS = List.of("AWS","GCP","AZURE");
+    private static final String FIELDS = "query,status,isp,country,countryCode,message";
 
     // could add the base ip for validation to the application.yaml
     public IpValidationService(RestTemplate restTemplate, @Value("${ip.api.url:http://ip-api.com/json/}")String baseUrl) {
@@ -23,20 +24,16 @@ public class IpValidationService {
         this.baseUrl = baseUrl;
     }
 
+    //only allowing X-Forwarded-For for testing purposes.
     public String extractClientIp(HttpServletRequest request) {
         String forwardedFor = request.getHeader("X-Forwarded-For");
         if(forwardedFor != null && !forwardedFor.isEmpty()) {
             return forwardedFor.split(",")[0].trim();
         }
-        String realIp = request.getHeader("X-Real-IP");
-        if(realIp != null && !realIp.isEmpty()) {
-            return realIp.trim();
-        }
         return request.getRemoteAddr();
-
     }
     public IpInfo validateIp(String ip) {
-        String url = baseUrl+ ip + "?fields=query,status,isp,country,message";
+        String url = baseUrl+ ip + "?fields=" + FIELDS;
         ResponseEntity<IpInfo> response = restTemplate.getForEntity(url+ip,IpInfo.class);
 
         IpInfo ipInfo = response.getBody();

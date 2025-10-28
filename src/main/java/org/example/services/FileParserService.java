@@ -19,10 +19,12 @@ public class FileParserService {
     private static final int EXPECTED_COLUMNS = 7;
     private final EntryValidator entryValidator;
     private final ValidationProperties validationProperties;
+    private final RequestLogService requestLogService;
 
-    public FileParserService(EntryValidator entryValidator, ValidationProperties validationProperties) {
+    public FileParserService(EntryValidator entryValidator, ValidationProperties validationProperties, RequestLogService requestLogService) {
         this.entryValidator = entryValidator;
         this.validationProperties = validationProperties;
+        this.requestLogService = requestLogService;
     }
     public List<Entry> parse(String content){
         List<Entry> entries = new ArrayList<>();

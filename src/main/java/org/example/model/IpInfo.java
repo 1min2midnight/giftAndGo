@@ -5,7 +5,16 @@ public class IpInfo {
     private String status;
     private String isp;
     private String country;
+    private String countryCode;
     private String message;
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
 
     public String getMessage() {
         return message;

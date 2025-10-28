@@ -4,22 +4,20 @@ import org.assertj.core.api.Assertions;
 import org.example.config.ValidationProperties;
 import org.example.model.Entry;
 import org.example.services.FileParserService;
+import org.example.services.RequestLogService;
 import org.example.validator.EntryValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@SpringBootTest(classes = FileParserService.class, webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class FileParserServiceTest {
+    @Autowired
     private FileParserService fileParserService;
-    @BeforeEach
-    public void setup() {
-        EntryValidator entryValidator = new EntryValidator();
-        ValidationProperties validationProperties = new ValidationProperties();
-       fileParserService= new FileParserService(entryValidator,validationProperties);
-    }
-
     @Test
     public void testFileParserService() {
         String content = """
