@@ -8,6 +8,8 @@ public class IpInfo {
     private String countryCode;
     private String message;
 
+    public IpInfo() {}
+
     public String getCountryCode() {
         return countryCode;
     }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -15,8 +16,8 @@ public class IpValidationService {
     private final String baseUrl;
 
     private static final List<String> BLOCKED_COUNTRIES = List.of("China","Spain","United States");
-    private static final List<String> BLOCKED_ISPS = List.of("AWS","GCP","AZURE");
-    private static final String FIELDS = "query,status,isp,country,countryCode,message";
+    private static final List<String> BLOCKED_ISPS = List.of("Amazon","Google","Microsoft");
+    public static final String FIELDS = "query,status,isp,country,countryCode,message";
 
     // could add the base ip for validation to the application.yaml
     public IpValidationService(RestTemplate restTemplate, @Value("${ip.api.url:http://ip-api.com/json/}")String baseUrl) {
@@ -33,8 +34,13 @@ public class IpValidationService {
         return request.getRemoteAddr();
     }
     public IpInfo validateIp(String ip) {
-        String url = baseUrl+ ip + "?fields=" + FIELDS;
-        ResponseEntity<IpInfo> response = restTemplate.getForEntity(url+ip,IpInfo.class);
+        String url =
+                UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .pathSegment(ip)
+                .queryParam("fields", FIELDS)
+                .toUriString();
+
+        ResponseEntity<IpInfo> response = restTemplate.getForEntity(url,IpInfo.class);
 
         IpInfo ipInfo = response.getBody();
         if (ipInfo == null || !"success".equalsIgnoreCase(ipInfo.getStatus())) {
