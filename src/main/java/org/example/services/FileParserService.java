@@ -1,5 +1,6 @@
 package org.example.services;
 
+import org.example.config.ValidationProperties;
 import org.example.model.Entry;
 import org.example.validator.EntryValidator;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -17,9 +18,11 @@ public class FileParserService {
 
     private static final int EXPECTED_COLUMNS = 7;
     private final EntryValidator entryValidator;
+    private final ValidationProperties validationProperties;
 
-    public FileParserService(EntryValidator entryValidator) {
+    public FileParserService(EntryValidator entryValidator, ValidationProperties validationProperties) {
         this.entryValidator = entryValidator;
+        this.validationProperties = validationProperties;
     }
     public List<Entry> parse(String content){
         List<Entry> entries = new ArrayList<>();
@@ -47,12 +50,14 @@ public class FileParserService {
                 entry.setAverageSpeed(new BigDecimal(parts[5].trim()));
                 entry.setTopSpeed(new BigDecimal(parts[6].trim()));
 
-                BindingResult errors = new BeanPropertyBindingResult(entry, "entry");
-                entryValidator.validate(entry, errors);
+                if(this.validationProperties.isEnabled()) {
+                    BindingResult errors = new BeanPropertyBindingResult(entry, "entry");
+                    entryValidator.validate(entry, errors);
 
-                if(errors.hasErrors()){
-                    var message = errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
-                    throw new IllegalArgumentException(" Validation failed at" + lineNumber + " reason: "+message);
+                    if (errors.hasErrors()) {
+                        var message = errors.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
+                        throw new IllegalArgumentException(" Validation failed at" + lineNumber + " reason: " + message);
+                    }
                 }
                 entries.add(entry);
             } catch (Exception e){
