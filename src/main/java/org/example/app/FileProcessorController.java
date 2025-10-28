@@ -33,7 +33,7 @@ public class FileProcessorController {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<?> processFile(HttpServletRequest httpServletRequest, @RequestBody MultipartFile file) throws IOException {
+    public ResponseEntity<?> processFile(HttpServletRequest httpServletRequest, @RequestParam("file") MultipartFile file) throws IOException {
         String ipAddress = ipValidationService.extractClientIp(httpServletRequest);
         try {
             ipValidationService.validateIp(ipAddress);

@@ -1,4 +1,7 @@
+package org.example;
+
 import org.assertj.core.api.Assertions;
+import org.example.config.ValidationProperties;
 import org.example.model.Entry;
 import org.example.services.FileParserService;
 import org.example.validator.EntryValidator;
@@ -13,7 +16,8 @@ public class FileParserServiceTest {
     @BeforeEach
     public void setup() {
         EntryValidator entryValidator = new EntryValidator();
-       fileParserService= new FileParserService(entryValidator);
+        ValidationProperties validationProperties = new ValidationProperties();
+       fileParserService= new FileParserService(entryValidator,validationProperties);
     }
 
     @Test

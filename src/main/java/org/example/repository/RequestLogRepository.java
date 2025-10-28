@@ -1,4 +1,4 @@
-package org.example.Repository;
+package org.example.repository;
 
 public class RequestLogRepository {
 }
